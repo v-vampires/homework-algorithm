@@ -19,7 +19,7 @@ public class L154_FindMinimumInRotatedSortedArrayIi {
                     right = mid;
                 } else if (nums[mid] > nums[right]) {//mid在左半边，最小值则在mid右边
                     left = mid + 1;
-                } else {//相等的话，只能逐渐减少right进行检查
+                } else {//相等的话，只能先排除掉right即逐渐减少right进行检查
                     right--;
                 }
             }
