@@ -43,50 +43,84 @@ package week9;
 // n == grid[i].length 
 // 1 <= n <= 100 
 // grid[i][j] 为 0 或 1 
-// 
-// Related Topics 广度优先搜索 数组 矩阵 
-// 👍 115 👎 0
+//
 
 import java.util.LinkedList;
 import java.util.Queue;
 
+/**
+ * 使用双向bfs
+ */
 public class L1091_ShortestPathInBinaryMatrix {
   public static void main(String[] args) {
        Solution solution = new L1091_ShortestPathInBinaryMatrix().new Solution();
       System.out.println(solution.shortestPathBinaryMatrix(new int[][]{{0,0,0}, {1,1,0}, {1,1,0}}));
   }
-  //leetcode submit region begin(Prohibit modification and deletion)
-class Solution {
-    public int shortestPathBinaryMatrix(int[][] grid) {
-        if(grid[0][0] == 1){
+    class Solution {
+
+        private int[][] dir;
+        private int n;
+        private int[][] grid;
+
+        public int shortestPathBinaryMatrix(int[][] grid) {
+            if(grid[0][0] == 1){
+                return -1;
+            }
+            n = grid.length;
+            if(grid[n-1][n-1] == 1){
+                return -1;
+            }
+            this.grid = grid;
+            dir = new int[][]{{0,-1},{0,1},{1,0},{-1,0},{1,-1},{-1,1},{-1,-1},{1,1}};
+            boolean[][] beginUsed = new boolean[n][n];
+            boolean[][] endUsed = new boolean[n][n];
+            Queue<int[]> beginQueue = new LinkedList<>();
+            Queue<int[]> endQueue = new LinkedList<>();
+            beginQueue.add(new int[]{0,0});
+            endQueue.add(new int[]{n-1,n-1});
+            beginUsed[0][0] = true;
+            endUsed[n-1][n-1] = true;
+
+            int beginAns = 1;
+            int endAns = 1;
+            while(!beginQueue.isEmpty() || !endQueue.isEmpty()){
+                boolean ret = expand(beginQueue, beginUsed, endUsed);
+                if(ret){
+                    return beginAns + endAns - 1;
+                }
+                beginAns++;
+                ret = expand(endQueue, endUsed, beginUsed);
+                if(ret){
+                    return beginAns + endAns -1 ;
+                }
+                endAns++;
+            }
             return -1;
         }
-        int[][] dir = {{0,-1},{1,-1},{1,0},{1,1},{0,1},{-1,1},{-1,0},{-1,-1}};
-        int n = grid.length;
-        boolean[][] used = new boolean[n][n];
-        Queue<int[]> queue = new LinkedList<>();
-        queue.add(new int[]{0,0});
-        used[0][0] = true;
-        int ans = 1;
-        while(!queue.isEmpty()){
+
+        /**
+         * 每次处理一层
+         * @param queue
+         * @param myUsed
+         * @param otherUsed
+         * @return
+         */
+        private boolean expand(Queue<int[]> queue, boolean[][] myUsed, boolean[][] otherUsed){
             final int size = queue.size();
             for (int i = 0; i < size; i++) {
                 final int[] point = queue.poll();
-                if(point[0] == n-1 && point[1] == n - 1) return ans;
+                if(otherUsed[point[0]][point[1]]) return true;
                 for (int[] ints : dir) {
                     int x = point[0] + ints[0];
                     int y = point[1] + ints[1];
-                    if(x >=0 && x < n && y >=0 && y < n && grid[x][y]==0 && !used[x][y]){
+                    if(x >=0 && x < n && y >=0 && y < n && grid[x][y]==0 && !myUsed[x][y]){
                         queue.add(new int[]{x,y});
-                        used[x][y] = true;
+                        myUsed[x][y] = true;
                     }
                 }
             }
-            ans++;
+            return false;
         }
-        return -1;
     }
-}
-//leetcode submit region end(Prohibit modification and deletion)
 
 }
